@@ -72,7 +72,7 @@ if __name__ == "__main__":
     participants = list(map(int, args.participants.split(",")))
     if len(participants) > 5:
         # NOTE: temporary measure
-        raise ValueError("Reduce the number of participants to ~5")
+        raise ValueError("Reduce the number of participants to lte 5")
 
     frequency = args.frequency
     kafka_host = args.kafka_host
