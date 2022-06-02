@@ -1,5 +1,10 @@
+"""
+Script that supplies data based on dataset from the paper: "A database of human gait performance on irregular and uneven surfaces collected by wearable sensors"
+URL link: https://www.nature.com/articles/s41597-020-0563-y
 
+"""
 import csv
+import json
 import os
 
 import re
@@ -8,8 +13,9 @@ from argparse import ArgumentParser
 from time import sleep
 from multiprocessing import Pool
 
-from kafka_utils import get_kafka_producer
-from record import Record, TrainingRecord
+from kafka import KafkaProducer
+
+from records.surface import TrainingSurfaceRecord
 
 
 def publish_participant_data(participant: int, topic_name: str, kafka_host: str, frequency: str, data_root: str):
@@ -17,7 +23,11 @@ def publish_participant_data(participant: int, topic_name: str, kafka_host: str,
     if not os.path.isdir(participant_data_path):
         raise ValueError(f"Invalid participant path: {participant_data_path}")
 
-    producer = get_kafka_producer(server=kafka_host)
+    producer = KafkaProducer(
+        bootstrap_servers=kafka_host,
+        value_serializer=lambda m: json.dumps(m).encode("ascii")
+    )
+
     print(f"Emitting data for participant: {participant}")
     total_count = 0
     try:
@@ -45,9 +55,9 @@ def publish_participant_data(participant: int, topic_name: str, kafka_host: str,
                             print(f"Emitted {frequency} records. Total emitted count: {total_count}")
                             sleep(1)
 
-                        # Walking surface and sensor location are encoded in the file name                   
+                        # Walking surface and sensor location are encoded in the file name
                         line = [match.group(1), match.group(2)] + line
-                        producer.send(topic_name, TrainingRecord.from_csv_row(line).data)
+                        producer.send(topic_name, TrainingSurfaceRecord.from_csv_row(line).data)
                         total_count += 1
                         tmp_counter += 1
     except Exception as e:
@@ -61,13 +71,14 @@ if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("-kh", "--kafka-host", dest="kafka_host", default="localhost:9092")
     parser.add_argument("-d", "--data-dir", dest="data_dir", default="input_data_SD")
-    parser.add_argument("-p", "--participants", dest="participants", help="Participants whose data shall be pushed to training topic")
+    parser.add_argument("-t", "--topic_name", dest="topic_name", default="training_topic")
+    parser.add_argument("-p", "--participants", dest="participants", help="Comma-separated participant numbers")
     parser.add_argument("-fq", "--frequency", dest="frequency", default=60)
 
     args = parser.parse_args()
 
     if args.participants is None:
-        raise ValueError("You need to provide a list of participants for training data")
+        raise ValueError("You need to provide a list of participant numbers")
 
     participants = list(map(int, args.participants.split(",")))
     if len(participants) > 5:
@@ -76,10 +87,10 @@ if __name__ == "__main__":
 
     frequency = args.frequency
     kafka_host = args.kafka_host
-    topic_name = "training_topic"
+    topic_name = args.topic_name
 
     data_dir = args.data_dir
-    data_root = os.path.join(os.path.dirname(__file__), data_dir)
+    data_root = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), data_dir)
 
     pool = Pool(len(participants))
     params = [(p, topic_name, kafka_host, frequency, data_root) for p in participants]

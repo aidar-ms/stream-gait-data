@@ -1,10 +1,8 @@
 from collections import UserDict
 from typing import List, Union
 
-from numpy import isin
 
-
-class Record(UserDict):
+class SurfaceRecord(UserDict):
 
     column_names = [
         'PacketCounter',
@@ -51,9 +49,9 @@ class Record(UserDict):
         return record
 
 
-class TrainingRecord(Record):
+class TrainingSurfaceRecord(SurfaceRecord):
 
-    column_names = ["Surface", "SensorLoc"] + Record.column_names
+    column_names = ["Surface", "SensorLoc"] + SurfaceRecord.column_names
 
     SURFACE_MAP = {
         (1, 2, 3): "CALIB",

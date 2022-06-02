@@ -1,3 +1,4 @@
+.env
 # IDE stuff
 .vscode
 # MATLAB data files
@@ -8,5 +9,6 @@ __pycache__
 .venv
 # Source data
 input_data_SD
+labeled_data
 # Kafka source code
 kafka_2.13-3.2.0

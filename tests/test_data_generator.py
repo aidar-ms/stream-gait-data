@@ -1,5 +1,5 @@
 import pytest
-from record import Record, TrainingRecord
+from records.surface import SurfaceRecord, TrainingSurfaceRecord
 
 
 def test_record():
@@ -9,7 +9,7 @@ def test_record():
         0.000193, -5.3e-05, 50.229801, -77.893475, -121.232079, 0, 0, 0.0, 0, 0, 0
     ]
 
-    record = Record.from_csv_row(data)
+    record = SurfaceRecord.from_csv_row(data)
     for name, expected_value in zip(record.column_names, data):
         assert record[name] == expected_value
 
@@ -21,12 +21,12 @@ def test_training_record():
         0.000193, -5.3e-05, 50.229801, -77.893475, -121.232079, 0, 0, 0.0, 0, 0, 0
     ]
 
-    record = TrainingRecord.from_csv_row(data)
+    record = TrainingSurfaceRecord.from_csv_row(data)
     for name, expected_value in zip(record.column_names, data):
         if name == "Surface":
-            assert record[name] == TrainingRecord.get_surface(expected_value)
+            assert record[name] == TrainingSurfaceRecord.get_surface(expected_value)
         elif name == "SensorLoc":
-            assert record[name] == TrainingRecord.get_sensor_location(expected_value)
+            assert record[name] == TrainingSurfaceRecord.get_sensor_location(expected_value)
         else:
             assert record[name] == expected_value
 
@@ -39,8 +39,8 @@ def test_training_record():
     )
 )
 def test_training_record_get_surface(surface_code, surface):
-    assert TrainingRecord.get_surface(surface_code) == surface
+    assert TrainingSurfaceRecord.get_surface(surface_code) == surface
 
 def test_record_data_not_complete():
     with pytest.raises(ValueError):
-        Record.from_csv_row([0.24, 0.21])
+        SurfaceRecord.from_csv_row([0.24, 0.21])
