@@ -8,6 +8,7 @@ __pycache__
 .pytest_cache
 .venv
 # Source data
+data_exploration/*.csv
 input_data_SD
 labeled_data
 # Kafka source code
