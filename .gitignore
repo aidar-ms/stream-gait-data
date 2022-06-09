@@ -11,5 +11,6 @@ __pycache__
 data_exploration/*.csv
 input_data_SD
 labeled_data
+sampled_data
 # Kafka source code
 kafka_2.13-3.2.0
