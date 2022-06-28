@@ -12,21 +12,38 @@ import re
 from argparse import ArgumentParser
 from time import sleep
 from multiprocessing import Pool
+from time import sleep
 
 from kafka import KafkaProducer
+from kafka.errors import NoBrokersAvailable
 
 from records.surface import TrainingSurfaceRecord
 
+def kafka_producer(kafka_host: str):
+    i = 0
+
+    while i < 4:
+        try:
+            producer = KafkaProducer(
+                bootstrap_servers=kafka_host,
+                value_serializer=lambda m: json.dumps(m).encode("ascii")
+            )
+            return producer
+        except NoBrokersAvailable as e:
+            # Try again after a pause
+            # The sleep is needed because the broker might not get started instantly
+            print("Sleeping for 10 secs")
+            sleep(10)
+            i += 1
+
+    raise ValueError(f"Failed to connect after {i} tries")
 
 def publish_participant_data(participant: int, topic_name: str, kafka_host: str, frequency: str, data_root: str):
     participant_data_path = os.path.join(data_root, str(participant))
     if not os.path.isdir(participant_data_path):
         raise ValueError(f"Invalid participant path: {participant_data_path}")
 
-    producer = KafkaProducer(
-        bootstrap_servers=kafka_host,
-        value_serializer=lambda m: json.dumps(m).encode("ascii")
-    )
+    producer = kafka_producer(kafka_host)
 
     print(f"Emitting data for participant: {participant}")
     total_count = 0
@@ -90,7 +107,7 @@ if __name__ == "__main__":
     topic_name = args.topic_name
 
     data_dir = args.data_dir
-    data_root = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), data_dir)
+    data_root = data_dir
 
     pool = Pool(len(participants))
     params = [(p, topic_name, kafka_host, frequency, data_root) for p in participants]
