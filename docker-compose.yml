@@ -30,3 +30,9 @@ services:
     image: data_generators:latest
     depends_on:
       - broker
+
+  simple_processor:
+    image: simple_processor:latest
+    depends_on:
+      - broker
+      - data_generator
