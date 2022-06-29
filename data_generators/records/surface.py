@@ -1,5 +1,8 @@
 from collections import UserDict
+from datetime import datetime
 from typing import List, Union
+
+from numpy import double
 
 
 class SurfaceRecord(UserDict):
@@ -38,15 +41,40 @@ class SurfaceRecord(UserDict):
     ]
 
     @classmethod
-    def from_csv_row(cls, data: List[float]):
+    def from_csv_row(cls, user_id: int, data: List[float]):
         if len(data) != len(cls.column_names):
             raise ValueError(f"Length of data list does not match the length of column names list: {len(data)} != {len(cls.column_names)}")
 
         record = cls()
+        record["UserId"] = user_id
+        record["Timestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         for name, value in zip(cls.column_names, data):
             record[name] = value
 
         return record
+    
+    @classmethod
+    def from_json(cls, data: dict):
+        # if len(data) != len(cls.column_names):
+        #     raise ValueError(f"Length of data list does not match the length of column names list: {len(data)} != {len(cls.column_names)}")
+        
+        numeric_field_names = {
+            "PacketCounter", "Acc_X", "Acc_Y", "Acc_Z", "FreeAcc_X", "FreeAcc_Y", "FreeAcc_Z",
+            "Gyr_X", "Gyr_Y", "Gyr_Z", "Mag_X", "Mag_Y", "Mag_Z", "VelInc_X", "VelInc_Y", "VelInc_Z",
+            "OriInc_q0", "OriInc_q1", "OriInc_q2", "OriInc_q3",
+            "Roll", "Pitch", "Yaw", "Altitude"
+        }
+
+        record = cls()
+        for name in cls.column_names:
+            if name in numeric_field_names:
+                record[name] = float(data[name].strip())  # TODO: Try double too
+            else:
+                record[name] = data[name].strip()
+
+        return record
+
+
 
 
 class TrainingSurfaceRecord(SurfaceRecord):
