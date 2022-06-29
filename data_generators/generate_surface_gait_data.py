@@ -4,7 +4,6 @@ URL link: https://www.nature.com/articles/s41597-020-0563-y
 
 """
 import csv
-import json
 import os
 
 import re
@@ -13,30 +12,9 @@ from argparse import ArgumentParser
 from time import sleep
 from multiprocessing import Pool
 from time import sleep
-
-from kafka import KafkaProducer
-from kafka.errors import NoBrokersAvailable
-
 from records.surface import TrainingSurfaceRecord
+from utils import kafka_producer
 
-def kafka_producer(kafka_host: str):
-    i = 0
-
-    while i < 4:
-        try:
-            producer = KafkaProducer(
-                bootstrap_servers=kafka_host,
-                value_serializer=lambda m: json.dumps(m).encode("ascii")
-            )
-            return producer
-        except NoBrokersAvailable as e:
-            # Try again after a pause
-            # The sleep is needed because the broker might not get started instantly
-            print("Sleeping for 10 secs")
-            sleep(10)
-            i += 1
-
-    raise ValueError(f"Failed to connect after {i} tries")
 
 def publish_participant_data(participant: int, topic_name: str, kafka_host: str, frequency: str, data_root: str):
     participant_data_path = os.path.join(data_root, str(participant))
@@ -74,7 +52,7 @@ def publish_participant_data(participant: int, topic_name: str, kafka_host: str,
 
                         # Walking surface and sensor location are encoded in the file name
                         line = [match.group(1), match.group(2)] + line
-                        producer.send(topic_name, TrainingSurfaceRecord.from_csv_row(line).data)
+                        producer.send(topic_name, TrainingSurfaceRecord.from_csv_row(participant, line).data)
                         total_count += 1
                         tmp_counter += 1
     except Exception as e:
