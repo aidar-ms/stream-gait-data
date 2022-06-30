@@ -1,5 +1,6 @@
 .env
 # IDE stuff
+.DS_Store
 .vscode
 # MATLAB data files
 *.mat
