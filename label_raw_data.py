@@ -7,7 +7,7 @@ Currently, there are no plans to use this script in the Kafka pipeline. It simpl
 """
 
 import os, re, csv
-from records.surface import TrainingSurfaceRecord
+from data_generators.records.surface import TrainingSurfaceRecord
 from multiprocessing import Pool
 
 data_path = "input_data_SD"
@@ -25,7 +25,7 @@ def label_data(participant_s: int, participant_e: int):
 
         with open(filename, "w+") as wf:
             write_doc = csv.writer(wf)
-            write_doc.writerow(["Surface", "SensorLocation"] + list(map(str.strip, TrainingSurfaceRecord.column_names)))
+            write_doc.writerow(["UserId", "Surface", "SensorLocation"] + list(map(str.strip, TrainingSurfaceRecord.column_names)))
 
             for f_name in participant_files:
                 m = pattern.match(f_name)
@@ -41,7 +41,11 @@ def label_data(participant_s: int, participant_e: int):
                             print("Skipping a header line")
                             continue
 
-                        write_doc.writerow([TrainingSurfaceRecord.get_surface(surface_code), TrainingSurfaceRecord.get_sensor_location(sensor_location_code)] + list(map(str.strip, row)))
+                        write_doc.writerow([
+                            n,
+                            TrainingSurfaceRecord.get_surface(surface_code),
+                            TrainingSurfaceRecord.get_sensor_location(sensor_location_code)
+                        ] + list(map(str.strip, row)))
                         i += 1
 
                         if i % 1000 == 0:
