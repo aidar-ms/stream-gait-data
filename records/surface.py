@@ -2,8 +2,6 @@ from collections import UserDict
 from datetime import datetime
 from typing import List, Union
 
-from numpy import double
-
 
 class SurfaceRecord(UserDict):
 

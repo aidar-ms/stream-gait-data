@@ -2,6 +2,8 @@
 Script that supplies data based on dataset from the paper: "A database of human gait performance on irregular and uneven surfaces collected by wearable sensors"
 URL link: https://www.nature.com/articles/s41597-020-0563-y
 
+Generates data based on a csv directory in the file system, as downloaded from the original source
+
 """
 import csv
 import os
@@ -67,18 +69,18 @@ if __name__ == "__main__":
     parser.add_argument("-kh", "--kafka-host", dest="kafka_host", default="localhost:9092")
     parser.add_argument("-d", "--data-dir", dest="data_dir", default="input_data_SD")
     parser.add_argument("-t", "--topic_name", dest="topic_name", default="training_topic")
-    parser.add_argument("-p", "--participants", dest="participants", help="Comma-separated participant numbers")
+    parser.add_argument("-ui", "--user_ids", dest="user_ids", help="Comma-separated user ids")
     parser.add_argument("-fq", "--frequency", dest="frequency", default=60)
 
     args = parser.parse_args()
 
-    if args.participants is None:
+    if args.user_ids is None:
         raise ValueError("You need to provide a list of participant numbers")
 
-    participants = list(map(int, args.participants.split(",")))
-    if len(participants) > 5:
+    user_ids = list(map(int, args.user_ids.split(",")))
+    if len(user_ids) > 5:
         # NOTE: temporary measure
-        raise ValueError("Reduce the number of participants to lte 5")
+        raise ValueError("Reduce the number of user ids to lte 5")
 
     frequency = args.frequency
     kafka_host = args.kafka_host
@@ -87,10 +89,10 @@ if __name__ == "__main__":
     data_dir = args.data_dir
     data_root = data_dir
 
-    pool = Pool(len(participants))
-    params = [(p, topic_name, kafka_host, frequency, data_root) for p in participants]
+    pool = Pool(len(user_ids))
+    params = [(p, topic_name, kafka_host, frequency, data_root) for p in user_ids]
     try:
-        pool.starmap(publish_participant_data, ((p, topic_name, kafka_host, frequency, data_root) for p in participants))
+        pool.starmap(publish_participant_data, ((p, topic_name, kafka_host, frequency, data_root) for p in user_ids))
     except KeyboardInterrupt:
         print("Exiting")
         pool.close()

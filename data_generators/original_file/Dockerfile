@@ -11,4 +11,4 @@ COPY records ./records
 
 ENV PYTHONPATH ${PYTHONPATH}:.
 
-CMD ["python", "generate_surface_gait_data.py", "-kh", "broker:9092", "-p", "1,2,3,4,5"]
+CMD ["python", "generate_data.py", "-kh", "broker:9092", "-ui", "1,2,3,4,5"]
