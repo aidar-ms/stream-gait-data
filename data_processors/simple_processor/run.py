@@ -1,9 +1,10 @@
+import config
 from processor import SimpleProcessor
 from utils import kafka_consumer
 
 if __name__ == "__main__":
     sp = SimpleProcessor()
-    kafka_host = "broker:9092"
+    kafka_host = config.KAFKA_HOST
 
     consumer = kafka_consumer("training_topic", kafka_host)
 
