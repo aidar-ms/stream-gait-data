@@ -3,9 +3,45 @@ from datetime import datetime
 from typing import List, Union
 
 
+class Surface:
+    pass
+
+
+class SensorLocation:
+    TRUNK = 1
+    WRIST = 2
+    RIGHT_THIGH = 3
+    LEFT_THIGH = 4
+    RIGHT_SHANK = 5
+    LEFT_SHANK = 6
+
+    # Mapping from original alphanumeric codes to local constants
+    CODES = {
+        "CC": TRUNK,
+        "95": WRIST,
+        "93": RIGHT_THIGH,
+        "8B": LEFT_THIGH,
+        "9B": RIGHT_SHANK,
+        "B6": LEFT_SHANK
+    }
+
+    # Mapping from local constants to human-readable values
+    HUMAN_READABLES = {
+        TRUNK: "Trunk",
+        WRIST: "Wrist",
+        RIGHT_THIGH: "Right Thigh",
+        LEFT_THIGH: "Left Thigh",
+        RIGHT_SHANK: "Right Shank",
+        LEFT_SHANK: "Left Shank"
+    }
+
+
 class SurfaceRecord(UserDict):
 
     column_names = [
+        'UserId',
+        'Surface',
+        'SensorLocation',
         'PacketCounter',
         'SampleTimeFine',
         'Acc_X',
@@ -29,13 +65,7 @@ class SurfaceRecord(UserDict):
         'OriInc_q3',
         'Roll',
         'Pitch',
-        'Yaw',
-        'Latitude',
-        'Longitude',
-        'Altitude',
-        'Vel_X',
-        'Vel_Y',
-        'Vel_Z'
+        'Yaw'
     ]
 
     @classmethod
@@ -60,7 +90,7 @@ class SurfaceRecord(UserDict):
             "PacketCounter", "Acc_X", "Acc_Y", "Acc_Z", "FreeAcc_X", "FreeAcc_Y", "FreeAcc_Z",
             "Gyr_X", "Gyr_Y", "Gyr_Z", "Mag_X", "Mag_Y", "Mag_Z", "VelInc_X", "VelInc_Y", "VelInc_Z",
             "OriInc_q0", "OriInc_q1", "OriInc_q2", "OriInc_q3",
-            "Roll", "Pitch", "Yaw", "Altitude"
+            "Roll", "Pitch", "Yaw"
         }
 
         record = cls()
@@ -76,8 +106,6 @@ class SurfaceRecord(UserDict):
 
 
 class TrainingSurfaceRecord(SurfaceRecord):
-
-    column_names = ["Surface", "SensorLoc"] + SurfaceRecord.column_names
 
     SURFACE_MAP = {
         (1, 2, 3): "CALIB",
@@ -95,19 +123,27 @@ class TrainingSurfaceRecord(SurfaceRecord):
     SENSOR_LOC_MAP = {
         "CC": "Trunk",
         "95": "Wrist",
-        "93": "Right thigh",
-        "8B": "Left thigh",
-        "9B": "Right shank",
-        "B6": "Left shank"
+        "93": "RightThigh",
+        "8B": "LeftThigh",
+        "9B": "RightShank",
+        "B6": "LeftShank"
     }
 
     def __setitem__(self, key, item) -> None:
         if key == "Surface":
             item = self.get_surface(item)
-        elif key == "SensorLoc":
+        elif key == "SensorLocation":
             item = self.get_sensor_location(item)
 
         return super().__setitem__(key, item)
+
+    @classmethod
+    def row(cls, user_id, surface_code, sensor_location_code, row):
+        return [
+            user_id,
+            cls.get_surface(surface_code),
+            cls.get_sensor_location(sensor_location_code)
+        ] + list(map(str.strip, row[:len(row)-6]))
 
     @classmethod
     def get_surface(cls, surface_code: Union[int, str]) -> str:

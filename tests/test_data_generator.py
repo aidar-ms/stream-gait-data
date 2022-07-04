@@ -25,7 +25,7 @@ def test_training_record():
     for name, expected_value in zip(record.column_names, data):
         if name == "Surface":
             assert record[name] == TrainingSurfaceRecord.get_surface(expected_value)
-        elif name == "SensorLoc":
+        elif name == "SensorLocation":
             assert record[name] == TrainingSurfaceRecord.get_sensor_location(expected_value)
         else:
             assert record[name] == expected_value

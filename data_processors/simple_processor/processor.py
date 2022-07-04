@@ -12,7 +12,7 @@ class SimpleProcessor:
     TOPIC_NAME = "simple_features_topic"
 
     fields = [
-        "Timestamp", "Surface", "SensorLoc", "UserId",
+        "Timestamp", "Surface", "SensorLocation", "UserId",
         "Acc_X", "Acc_Y", "Acc_Z",
         "Gyr_X", "Gyr_Y", "Gyr_Z",
         "Mag_X", "Mag_Y", "Mag_Z"
@@ -34,10 +34,10 @@ class SimpleProcessor:
     sensor_locations = {
         "Trunk": 1,
         "Wrist": 2,
-        "Right thigh": 3,
-        "Left thigh": 4,
-        "Right shank": 5,
-        "Left shank": 6
+        "RightThigh": 3,
+        "LeftThigh": 4,
+        "RightShank": 5,
+        "LeftShank": 6
     }
 
     numeric_fields = {
@@ -55,7 +55,7 @@ class SimpleProcessor:
                     result_record[field] = float(record[field].strip())
                 elif field == "Surface":
                     result_record[field] = self.surfaces[record[field]]
-                elif field == "SensorLoc":
+                elif field == "SensorLocation":
                     result_record[field] = self.sensor_locations[record[field]]
                 elif field == "Timestamp":
                     result_record[field] = parser.parse(record[field])
@@ -72,18 +72,17 @@ class SimpleProcessor:
 
     def extract_features(self, df: pd.DataFrame) -> pd.DataFrame:
         return extract_features(
-            df.drop(["Surface", "SensorLoc"], axis=1),
+            df.drop(["Surface", "SensorLocation"], axis=1),
             column_id="UserId",
             column_sort="Timestamp",
             impute_function=impute,
             default_fc_parameters=MinimalFCParameters()
         )
-    
 
-    def process(self, stream: Iterable[dict], kafka_host: str) -> List[dict]:
-        producer = kafka_producer(kafka_host)
+    def aprocess(self, stream: Iterable[dict], kafka_host: str) -> List[dict]:
         df = self.stream_to_df(stream)
         df_features = self.extract_features(df)
 
+        producer = kafka_producer(kafka_host)
         for record in df_features.to_dict().values():
             producer.send(self.TOPIC_NAME, record)

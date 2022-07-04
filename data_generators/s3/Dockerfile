@@ -1,6 +1,6 @@
 FROM aidarms/stream-gait:latest
 
-COPY generate_surface_gait_data.py ./generate_surface_gait_data.py
+COPY generate_data.py ./generate_data.py
 
 ENV PYTHONPATH ${PYTHONPATH}:.
 

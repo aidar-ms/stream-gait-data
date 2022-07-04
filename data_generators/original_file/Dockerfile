@@ -6,7 +6,7 @@ RUN unzip -o input_data_SD.zip
 RUN mv "input data_SD" input_data_SD
 RUN rm input_data_SD.zip
 
-COPY generate_surface_gait_data.py ./generate_surface_gait_data.py
+COPY generate_data.py ./generate_data.py
 COPY records ./records
 
 ENV PYTHONPATH ${PYTHONPATH}:.
