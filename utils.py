@@ -29,7 +29,11 @@ def kafka_consumer(topic_name: str, kafka_host: str):
 
     while i < 4:
         try:
-            return KafkaConsumer(topic_name, bootstrap_servers=[kafka_host], value_deserializer=lambda m: json.loads(m.decode("ascii")))
+            return KafkaConsumer(
+                topic_name,
+                bootstrap_servers=[kafka_host],
+                value_deserializer=lambda m: json.loads(m.decode("ascii"))
+            )
         except NoBrokersAvailable:
             # Try again after a pause
             # The sleep is needed because the broker might not get started instantly

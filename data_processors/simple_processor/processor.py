@@ -79,7 +79,7 @@ class SimpleProcessor:
             default_fc_parameters=MinimalFCParameters()
         )
 
-    def aprocess(self, stream: Iterable[dict], kafka_host: str) -> List[dict]:
+    def process(self, stream: Iterable[dict], kafka_host: str) -> List[dict]:
         df = self.stream_to_df(stream)
         df_features = self.extract_features(df)
 
