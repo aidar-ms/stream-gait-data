@@ -1,4 +1,3 @@
-
 import os
 
 KAFKA_HOST = os.getenv("KAFKA_HOST", "broker:9092")

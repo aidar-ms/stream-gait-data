@@ -24,7 +24,7 @@ class Receiver:
         elif source_type == "kafka":
             self.handle = kafka_consumer(source_name, config.KAFKA_HOST)
 
-        self.stream = (json.loads(line) for line in self.handle)
+        self.stream = (m.value for m in self.handle)
     
     def close(self):
         self.handle.close()

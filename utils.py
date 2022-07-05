@@ -24,7 +24,7 @@ def kafka_producer(kafka_host: str):
     raise ValueError(f"Failed to connect after {i} tries")
 
 
-def kafka_consumer(topic_name: str, kafka_host: str):
+def kafka_consumer(topic_name: str, kafka_host: str, auto_offset_reset: str = "latest"):
     i = 0
 
     while i < 4:
@@ -32,7 +32,8 @@ def kafka_consumer(topic_name: str, kafka_host: str):
             return KafkaConsumer(
                 topic_name,
                 bootstrap_servers=[kafka_host],
-                value_deserializer=lambda m: json.loads(m.decode("ascii"))
+                value_deserializer=lambda m: json.loads(m.decode("ascii")),
+                auto_offset_reset=auto_offset_reset
             )
         except NoBrokersAvailable:
             # Try again after a pause
