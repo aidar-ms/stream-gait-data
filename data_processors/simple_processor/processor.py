@@ -18,6 +18,7 @@ class SimpleProcessor:
         "Mag_X", "Mag_Y", "Mag_Z"
     ]
 
+    # Surfaces and Sensor locations must be universal
     surfaces = {
         "CALIB": 1,
         "FE": 2,
@@ -79,10 +80,9 @@ class SimpleProcessor:
             default_fc_parameters=MinimalFCParameters()
         )
 
-    def process(self, stream: Iterable[dict], kafka_host: str) -> List[dict]:
+    def process(self, stream: Iterable[dict]) -> List[dict]:
         df = self.stream_to_df(stream)
         df_features = self.extract_features(df)
 
-        producer = kafka_producer(kafka_host)
-        for record in df_features.to_dict().values():
-            producer.send(self.TOPIC_NAME, record)
+        for features in df_features.to_dict().values():
+            yield features
