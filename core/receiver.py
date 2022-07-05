@@ -1,7 +1,7 @@
 
 
 import json
-import config
+import core.config as config
 from kafka import KafkaConsumer
 from utils import kafka_consumer
 

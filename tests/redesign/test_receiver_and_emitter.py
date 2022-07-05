@@ -5,8 +5,8 @@ import pytest
 
 from kafka import KafkaConsumer
 
-from redesign.emitter import Emitter
-from redesign.receiver import Receiver
+from core.emitter import Emitter
+from core.receiver import Receiver
 
 
 def test_receiver_init_file(tmp_path):
@@ -54,3 +54,5 @@ def test_emitter_file(tmp_path):
         e.send(record)
 
     assert _file.is_file()
+
+    e.close()

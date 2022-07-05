@@ -1,4 +1,4 @@
-import config
+import core.config as config
 from processor import SimpleProcessor
 from utils import kafka_consumer
 
