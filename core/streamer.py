@@ -15,7 +15,7 @@ class Streamer:
 class FileStreamer(Streamer):
 
     def data(self, user_id: int):
-        full_path = os.path.join(self.source_dir, f"{user_id}.csv")
+        full_path = os.path.join(self.source, f"{user_id}.csv")
 
         with open(full_path) as f:
             reader = csv.reader(f, delimiter=",")

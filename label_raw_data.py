@@ -7,8 +7,9 @@ Currently, there are no plans to use this script in the Kafka pipeline. It simpl
 """
 
 import os, re, csv
-from records.surface import TrainingSurfaceRecord
 from multiprocessing import Pool
+from core.csv_row import CSVRow
+
 
 data_path = "input_data_SD"
 pattern = re.compile(r"^(\d{1,2})\-000_00B432([\w]{2})\.txt\.csv$")
@@ -20,13 +21,12 @@ def label_data(participant_s: int, participant_e: int):
         participant_files = list(filter(lambda x: ".txt.csv" in x, os.listdir(f"{data_path}/{n}")))
         print(f"Found {len(participant_files)} files for participant {n}")
 
-        filename = f"labeled_data/{n}.csv"
+        filename = f"labeled_data_2/{n}.csv"
         os.makedirs(os.path.dirname(filename), exist_ok=True)
 
         with open(filename, "w+") as wf:
             write_doc = csv.writer(wf)
-            # write_doc.writerow(["UserId", "Surface", "SensorLocation"] + list(map(str.strip, TrainingSurfaceRecord.column_names)))
-            write_doc.writerow(TrainingSurfaceRecord.column_names)
+            write_doc.writerow(CSVRow.column_names)
 
             for f_name in participant_files:
                 m = pattern.match(f_name)
@@ -43,14 +43,13 @@ def label_data(participant_s: int, participant_e: int):
                             continue
 
                         write_doc.writerow(
-                            TrainingSurfaceRecord.row(n, surface_code, sensor_location_code, row)
+                            CSVRow.row(n, surface_code, sensor_location_code, row)
                         )
 
                         i += 1
 
                         if i % 1000 == 0:
                             print(f"Processed {i} rows for participant {n}")
-
 
 
 if __name__ == "__main__":

@@ -3,13 +3,9 @@ Generates data from S3 objects. Each object is a csv file with user id as a file
 """
 import os
 
-from datetime import datetime
 from argparse import ArgumentParser
-from random import choice
-from typing import List
 from core.streamer import get_streamer
-from data_generators.s3.generator import MixingGenerator
-from records.surface import SurfaceRecord
+from data_generators.mixing.generator import MixingGenerator
 from core.emitter import Emitter
 
 

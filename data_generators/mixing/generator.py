@@ -5,7 +5,7 @@ from random import choice
 from typing import List
 
 from core.streamer import Streamer
-from records.surface import SurfaceRecord
+from core.csv_row import CSVRow
 
 
 class MixingGenerator:
@@ -19,7 +19,7 @@ class MixingGenerator:
         user_ids = user_ids.copy()
 
         streams = {user_id: self.streamer.data(user_id) for user_id in user_ids}
-        data = {k: None for k in SurfaceRecord.column_names}
+        data = {k: None for k in CSVRow.column_names}
 
         while len(streams) > 0:
             current_user_id = choice(user_ids)

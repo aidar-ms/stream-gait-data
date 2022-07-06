@@ -1,5 +1,4 @@
 import pandas as pd
-from records.surface import SurfaceRecord
 from data_processors.simple_processor.processor import SimpleProcessor
 
 
