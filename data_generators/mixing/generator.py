@@ -15,10 +15,10 @@ class MixingGenerator:
         self.source_type = source_type
         self.source_name = source_name
 
-    def stream(self, user_ids: List[int]):
+    def stream(self, user_ids: List[int], surfaces: List[int], sensor_location: int):
         user_ids = user_ids.copy()
 
-        streams = {user_id: self.streamer.data(user_id) for user_id in user_ids}
+        streams = {user_id: self.streamer.data(user_id, surface, sensor_location) for user_id, surface in zip(user_ids, surfaces)}
         data = {k: None for k in CSVRow.column_names}
 
         while len(streams) > 0:

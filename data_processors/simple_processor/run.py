@@ -37,9 +37,8 @@ if __name__ == "__main__":
         for record in r.stream:
             data.append(record)
             if len(data) >= limit:
-                features_stream = sp.process(data)
-                for features in features_stream:
-                    e.send(features)
+                features = sp.process(data)
+                e.send(features)
                 data.clear()
     except KeyboardInterrupt:
         r.close()

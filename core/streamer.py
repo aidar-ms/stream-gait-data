@@ -5,17 +5,19 @@ import boto3
 
 class Streamer:
 
+    SURFACE_COLUMN_IDX = 1
+
     def __init__(self, source: str) -> None:
         self.source = source
 
-    def data(self, user_id: int):
+    def data(self, user_id: int, surface: int, sensor_loc: int):
         raise NotImplementedError
 
 
 class FileStreamer(Streamer):
 
-    def data(self, user_id: int):
-        full_path = os.path.join(self.source, f"{user_id}.csv")
+    def data(self, user_id: int, surface: int, sensor_loc: int):
+        full_path = os.path.join(self.source, f"{user_id}_{surface}_{sensor_loc}.csv")
 
         with open(full_path) as f:
             reader = csv.reader(f, delimiter=",")
@@ -29,9 +31,9 @@ class S3Streamer(Streamer):
         super().__init__(source)
 
 
-    def data(self, user_id: int):
+    def data(self, user_id: int, surface: int, sensor_loc: int):
         s3 = boto3.resource("s3")
-        s3_object = s3.Object(self.source, f"{user_id}.csv").get()
+        s3_object = s3.Object(self.source, f"{user_id}_{surface}_{sensor_loc}.csv").get()
 
         prev_record = b''
         newline_char = b'\n'

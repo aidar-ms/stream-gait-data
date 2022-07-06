@@ -80,9 +80,8 @@ class SimpleProcessor:
             default_fc_parameters=MinimalFCParameters()
         )
 
-    def process(self, stream: Iterable[dict]) -> List[dict]:
+    def process(self, stream: Iterable[dict]) -> dict:
         df = self.stream_to_df(stream)
         df_features = self.extract_features(df)
 
-        for features in df_features.to_dict().values():
-            yield features
+        return df_features.to_dict()

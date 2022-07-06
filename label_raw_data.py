@@ -9,6 +9,8 @@ Currently, there are no plans to use this script in the Kafka pipeline. It simpl
 import os, re, csv
 from multiprocessing import Pool
 from core.csv_row import CSVRow
+from records.sensor_location import SensorLocation
+from records.surface import Surface
 
 
 data_path = "input_data_SD"
@@ -21,16 +23,18 @@ def label_data(participant_s: int, participant_e: int):
         participant_files = list(filter(lambda x: ".txt.csv" in x, os.listdir(f"{data_path}/{n}")))
         print(f"Found {len(participant_files)} files for participant {n}")
 
-        filename = f"labeled_data_2/{n}.csv"
-        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        # os.makedirs(os.path.dirname(filename), exist_ok=True)
 
-        with open(filename, "w+") as wf:
-            write_doc = csv.writer(wf)
-            write_doc.writerow(CSVRow.column_names)
+        for f_name in participant_files:
+            m = pattern.match(f_name)
 
-            for f_name in participant_files:
-                m = pattern.match(f_name)
-                surface_code, sensor_location_code = m.group(1), m.group(2)
+            surface_code, sensor_location_code = m.group(1), m.group(2)
+            surf_internal_code = Surface.get_code(surface_code)
+            sl_internal_code = SensorLocation.get_code(sensor_location_code)
+            filename = f"labeled_data/{n}_{surf_internal_code}_{sl_internal_code}.csv"
+            with open(filename, "w+") as wf:
+                write_doc = csv.writer(wf)
+                write_doc.writerow(CSVRow.column_names)
 
                 with open(f"{data_path}/{n}/{f_name}", "r") as f:
                     doc = csv.reader(f)
