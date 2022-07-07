@@ -30,7 +30,6 @@ class Emitter:
             self.handle.write(json.dumps(msg) + "\n")
         elif self.is_kafka:
             self.handle.send(self.dest_name, msg)
-        
 
     def close(self):
         self.handle.close()

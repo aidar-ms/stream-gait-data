@@ -21,6 +21,7 @@ if __name__ == "__main__":
     parser.add_argument("-ui", "--user_ids", dest="user_ids", help="Comma-separated user ids")
     parser.add_argument("-ss", "--surfaces", dest="surfaces", help="Comma-separated surface numbers")
     parser.add_argument("-sl", "--sensor-location", type=int, dest="sensor_location", help="Sensor location (just one number)")
+    parser.add_argument("-f", "--frequency", default=100, dest="frequency", help="How many records emit at once")
 
     args = parser.parse_args()
     if args.user_ids is None or args.surfaces is None:
@@ -47,7 +48,7 @@ if __name__ == "__main__":
 
     count = 0
     for record in gen.stream(user_ids, surfaces, sensor_location):
-        if count >= 50:
+        if count >= args.frequency:
             sleep(2)
             count = 0
 
