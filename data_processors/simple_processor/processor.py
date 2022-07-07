@@ -18,29 +18,6 @@ class SimpleProcessor:
         "Mag_X", "Mag_Y", "Mag_Z"
     ]
 
-    # Surfaces and Sensor locations must be universal
-    surfaces = {
-        "CALIB": 1,
-        "FE": 2,
-        "CS": 3,
-        "StrU": 4,
-        "StrD": 5,
-        "SlpU": 6,
-        "SlpD": 7,
-        "BnkL": 8,
-        "BnkR": 9,
-        "GR": 10,
-    }
-
-    sensor_locations = {
-        "Trunk": 1,
-        "Wrist": 2,
-        "RightThigh": 3,
-        "LeftThigh": 4,
-        "RightShank": 5,
-        "LeftShank": 6
-    }
-
     numeric_fields = {
         "Acc_X", "Acc_Y", "Acc_Z",
         "Gyr_X", "Gyr_Y", "Gyr_Z",
@@ -54,10 +31,6 @@ class SimpleProcessor:
             for field in self.fields:
                 if field in self.numeric_fields:
                     result_record[field] = float(record[field].strip())
-                elif field == "Surface":
-                    result_record[field] = self.surfaces[record[field]]
-                elif field == "SensorLocation":
-                    result_record[field] = self.sensor_locations[record[field]]
                 elif field == "Timestamp":
                     result_record[field] = parser.parse(record[field])
                 else:
@@ -70,6 +43,10 @@ class SimpleProcessor:
 
         return pd.DataFrame(data)
     
+    def extract_classes(self, df: pd.DataFrame) -> pd.DataFrame:
+        return df.groupby(
+            by=["UserId", "Surface"]
+        ).count().reset_index()[["UserId", "Surface"]]
 
     def extract_features(self, df: pd.DataFrame) -> pd.DataFrame:
         return extract_features(
@@ -82,6 +59,7 @@ class SimpleProcessor:
 
     def process(self, stream: Iterable[dict]) -> dict:
         df = self.stream_to_df(stream)
+        classes = self.extract_classes(df)
         df_features = self.extract_features(df)
 
-        return df_features.to_dict()
+        return (df_features.to_dict(), classes.to_dict())
