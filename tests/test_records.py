@@ -1,5 +1,5 @@
-from records.surface import Surface
-from records.sensor_location import SensorLocation
+from core.records.surface import Surface
+from core.records.sensor_location import SensorLocation
 
 
 def test_surface():

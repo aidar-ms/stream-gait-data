@@ -38,7 +38,6 @@ if __name__ == "__main__":
             data.append(record)
             if len(data) >= limit:
                 features, classes = sp.process(data)
-                # This will not work in parallel
                 payload = {
                     "features": features,
                     "classes": classes

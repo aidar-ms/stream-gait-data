@@ -9,8 +9,8 @@ Currently, there are no plans to use this script in the Kafka pipeline. It simpl
 import os, re, csv
 from multiprocessing import Pool
 from core.csv_row import CSVRow
-from records.sensor_location import SensorLocation
-from records.surface import Surface
+from core.records.sensor_location import SensorLocation
+from core.records.surface import Surface
 
 
 data_path = "input_data_SD"

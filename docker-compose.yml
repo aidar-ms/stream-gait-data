@@ -27,15 +27,40 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
   
-  data_generator:
-    image: data_generators_s3:latest
+  data_generator_train:
+    container_name: data_generator_train
     depends_on:
       - broker
+    build:
+      context: ./data_generators/mixing
+    environment:
+      - CONFIG=experiment.json
+      - PIPELINE_TYPE=train
+      - SOURCE_TYPE=s3
+      - SOURCE_NAME=stream-gait-data-disser
+      - DEST_TYPE=file
+      - DEST_NAME=data.txt
     volumes:
       - ~/.aws/credentials:/root/.aws/credentials
 
-  simple_processor:
-    image: simple_processor:latest
+  data_generator_test:
+    container_name: data_generator_test
     depends_on:
       - broker
-      - data_generator
+    build:
+      context: ./data_generators/mixing
+    environment:
+      - CONFIG=experiment.json
+      - PIPELINE_TYPE=test
+      - SOURCE_TYPE=s3
+      - SOURCE_NAME=stream-gait-data-disser
+      - DEST_TYPE=file
+      - DEST_NAME=data.txt
+    volumes:
+      - ~/.aws/credentials:/root/.aws/credentials
+
+  # simple_processor:
+  #   image: simple_processor:latest
+  #   depends_on:
+  #     - broker
+  #     - data_generator

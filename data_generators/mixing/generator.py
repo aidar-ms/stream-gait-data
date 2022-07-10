@@ -10,20 +10,27 @@ from core.csv_row import CSVRow
 
 class MixingGenerator:
 
-    def __init__(self, streamer: Streamer, source_type: str, source_name: str) -> None:
+    def __init__(self, streamer: Streamer) -> None:
         self.streamer = streamer
-        self.source_type = source_type
-        self.source_name = source_name
 
-    def stream(self, user_ids: List[int], surfaces: List[int], sensor_location: int):
-        user_ids = user_ids.copy()
+    def get_streams(self, surface_conf: dict, sensor_loc: int):
+        streams = {}
+        for surface_id in surface_conf:
+            for user_id in surface_conf[surface_id]:
+                streams[(int(surface_id), user_id)] = self.streamer.data(user_id, int(surface_id), sensor_loc)
+        
+        return streams
 
-        streams = {user_id: self.streamer.data(user_id, surface, sensor_location) for user_id, surface in zip(user_ids, surfaces)}
+    def stream(self, surface_conf: dict, sensor_location: int):
+        streams = self.get_streams(surface_conf, sensor_location)
         data = {k: None for k in CSVRow.column_names}
+        # keys: (user_id, surface)
+        # A key is selected randomly at each stream iteration to introduce randomness in the streamed data
+        keys = list(streams.keys())
 
         while len(streams) > 0:
-            current_user_id = choice(user_ids)
-            current_stream = streams[current_user_id]
+            current_key = choice(keys)
+            current_stream = streams[current_key]
 
             try:
                 record = next(current_stream)
@@ -39,5 +46,5 @@ class MixingGenerator:
                 yield data
 
             except StopIteration:
-                del streams[current_user_id]
-                user_ids.remove(current_user_id)
+                del streams[current_key]
+                keys.remove(current_key)
