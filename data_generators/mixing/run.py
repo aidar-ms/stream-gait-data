@@ -44,11 +44,14 @@ if __name__ == "__main__":
     gen = MixingGenerator(get_streamer(source_name, source_type))
     emitter = Emitter(dest_type, dest_name)
 
-    count = 0
-    for record in gen.stream(config[pipeline_type], config["sensor_location"]):
-        if count >= args.frequency:
-            sleep(2)
-            count = 0
+    try:
+        count = 0
+        for record in gen.stream(config[pipeline_type], config["sensor_location"]):
+            if count >= args.frequency:
+                sleep(2)
+                count = 0
 
-        emitter.send(record)
-        count += 1
+            emitter.send(record)
+            count += 1
+    except KeyboardInterrupt:
+        emitter.close()
