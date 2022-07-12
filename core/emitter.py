@@ -21,7 +21,7 @@ class Emitter:
         self.data = []
 
         if self.is_file:
-            self.handle = open(dest_name, "w")
+            self.handle = open(dest_name, "a")
         elif self.is_kafka:
             self.handle = kafka_producer(config.KAFKA_HOST)
 
