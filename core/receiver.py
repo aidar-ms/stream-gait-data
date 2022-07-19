@@ -15,7 +15,7 @@ class Receiver:
 
     stream = None
 
-    def __init__(self, source_type: str, source_name: str, earliest_offset: bool = False) -> None:
+    def __init__(self, source_type: str, source_name: str) -> None:
         """
         source_type is one of: file, s3
         """
@@ -23,8 +23,7 @@ class Receiver:
             self.handle = open(source_name)
             self.stream = (json.loads(m) for m in self.handle)
         elif source_type == "kafka":
-            auto_offset_reset = "latest" if not earliest_offset else "earliest"
-            self.handle = kafka_consumer(source_name, config.KAFKA_HOST, auto_offset_reset)
+            self.handle = kafka_consumer(source_name, config.KAFKA_HOST)
             self.stream = (m.value for m in self.handle)
     
     def close(self):

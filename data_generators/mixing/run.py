@@ -21,8 +21,8 @@ if __name__ == "__main__":
     parser.add_argument("-c", "--config", dest="config", help="Experiment config path")
     parser.add_argument("-pt", "--pipeline-type", dest="pipeline_type", help="Pipeline type")
 
-    parser.add_argument("-f", "--frequency", default=100, dest="frequency", help="How many records emit at once")
-    parser.add_argument("-s", "--sleeptime", default=15, dest="sleeptime", help="For how many records to sleep after emitting a certain amount of data")
+    parser.add_argument("-f", "--frequency", default=100, dest="frequency", help="How many records to emit at once")
+    parser.add_argument("-s", "--sleeptime", default=0.1, dest="sleeptime", help="For how many records to sleep after emitting a certain amount of data")
 
     args = parser.parse_args()
 

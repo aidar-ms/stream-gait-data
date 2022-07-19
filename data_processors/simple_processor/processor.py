@@ -2,6 +2,7 @@
 import pandas as pd
 from dateutil import parser
 from typing import Iterable, List
+from sklearn.preprocessing import MinMaxScaler
 from tsfresh.feature_extraction import extract_features, MinimalFCParameters
 from tsfresh.utilities.dataframe_functions import impute
 from utils import kafka_producer
@@ -49,13 +50,28 @@ class SimpleProcessor:
         ).count().reset_index()[["UserId", "Surface"]]
 
     def extract_features(self, df: pd.DataFrame) -> pd.DataFrame:
-        return extract_features(
+        def should_be_dropped(c: str):
+            return (
+                c.endswith("sum_values") or c.endswith("length")
+            )
+        
+        # Extract features
+        features = extract_features(
             df.drop(["Surface", "SensorLocation"], axis=1),
             column_id="UserId",
             column_sort="Timestamp",
             impute_function=impute,
-            default_fc_parameters=MinimalFCParameters()
+            default_fc_parameters=MinimalFCParameters(),
         )
+
+        # Drop unneeded features
+        features = features[[c for c in features.columns if not should_be_dropped(c)]]
+
+        # Scale features
+        for c in features.columns:
+            features[c] = MinMaxScaler().fit_transform(features[[c]])
+        
+        return features
 
     def process(self, stream: Iterable[dict]) -> dict:
         df = self.stream_to_df(stream)

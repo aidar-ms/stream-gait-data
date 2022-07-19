@@ -36,12 +36,14 @@ services:
     environment:
       - CONFIG=experiment.json
       - PIPELINE_TYPE=train
-      - SOURCE_TYPE=s3
-      - SOURCE_NAME=stream-gait-data-disser
-      - DEST_TYPE=file
-      - DEST_NAME=data.txt
+      - SOURCE_TYPE=file
+      # - SOURCE_NAME=stream-gait-data-disser
+      - SOURCE_NAME=labeled_data
+      - DEST_TYPE=kafka
+      - DEST_NAME=train_data
     volumes:
-      - ~/.aws/credentials:/root/.aws/credentials
+      # - ~/.aws/credentials:/root/.aws/credentials
+      - ./labeled_data:/labeled_data
 
   data_generator_test:
     container_name: data_generator_test
@@ -52,15 +54,66 @@ services:
     environment:
       - CONFIG=experiment.json
       - PIPELINE_TYPE=test
-      - SOURCE_TYPE=s3
-      - SOURCE_NAME=stream-gait-data-disser
-      - DEST_TYPE=file
-      - DEST_NAME=data.txt
+      - SOURCE_TYPE=file
+      # - SOURCE_NAME=stream-gait-data-disser
+      - SOURCE_NAME=labeled_data
+      - DEST_TYPE=kafka
+      - DEST_NAME=test_data
     volumes:
-      - ~/.aws/credentials:/root/.aws/credentials
+      # - ~/.aws/credentials:/root/.aws/credentials
+      - ./labeled_data:/labeled_data
 
-  # simple_processor:
-  #   image: simple_processor:latest
-  #   depends_on:
-  #     - broker
-  #     - data_generator
+  processor_train:
+    container_name: processor_train
+    depends_on:
+      - broker
+      - data_generator_train
+    build:
+      # Change context to change a processor
+      context: ./data_processors/simple_processor
+    environment:
+      - SOURCE_TYPE=kafka
+      - SOURCE_NAME=train_data
+      - DEST_TYPE=kafka
+      - DEST_NAME=features_train
+    # volumes:
+    #   - ./features_train.txt:./generated_data/features_train.txt
+
+  processor_test:
+    container_name: processor_test
+    depends_on:
+      - broker
+      - data_generator_test
+    build:
+      # Change context to change a processor
+      context: ./data_processors/simple_processor
+    environment:
+      - SOURCE_TYPE=kafka
+      - SOURCE_NAME=test_data
+      - DEST_TYPE=file
+      - DEST_NAME=/features/features_test.txt
+    volumes:
+      - test_data:/features
+    #   - ./features_test.txt:./generated_data/features_test.txt
+  
+  model:
+    container_name: model
+    depends_on:
+      - broker
+      - processor_train
+      - processor_test
+    build:
+      # Change context to change a model
+      context: ./models/sgd
+    environment:
+      - TRAIN_SOURCE_TYPE=kafka
+      - TRAIN_SOURCE_NAME=features_train
+      - TEST_SOURCE_TYPE=file
+      - TEST_SOURCE_NAME=/features/features_test.txt
+      - PREDICTIONS_DEST_TYPE=kafka
+      - PREDICTIONS_DEST_NAME=predictions
+    volumes:
+      - test_data:/features
+
+volumes:
+  test_data:
