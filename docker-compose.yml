@@ -72,12 +72,11 @@ services:
       # Change context to change a processor
       context: ./data_processors/simple_processor
     environment:
+      - LIMIT=2800
       - SOURCE_TYPE=kafka
       - SOURCE_NAME=train_data
       - DEST_TYPE=kafka
       - DEST_NAME=features_train
-    # volumes:
-    #   - ./features_train.txt:./generated_data/features_train.txt
 
   processor_test:
     container_name: processor_test
@@ -88,13 +87,13 @@ services:
       # Change context to change a processor
       context: ./data_processors/simple_processor
     environment:
+      - LIMIT=400
       - SOURCE_TYPE=kafka
       - SOURCE_NAME=test_data
       - DEST_TYPE=file
       - DEST_NAME=/features/features_test.txt
     volumes:
       - test_data:/features
-    #   - ./features_test.txt:./generated_data/features_test.txt
   
   model:
     container_name: model

@@ -42,7 +42,6 @@ class MixingGenerator:
                 for key, val in zip(data.keys(), record):
                     data[key] = val
 
-                data["Timestamp"] = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
                 yield data
 
             except StopIteration:

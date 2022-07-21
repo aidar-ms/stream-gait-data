@@ -42,10 +42,7 @@ if __name__ == "__main__":
 
     # Initialise the model
     first_run = True
-    model =SGDClassifier(
-        learning_rate="adaptive",
-        eta0=0.01
-    )
+    model =SGDClassifier(alpha=.0001, loss='log', penalty='l2', n_jobs=-1, shuffle=True, max_iter=100, verbose=0, tol=0.001)
     i = 0
 
     for train_record in train_r.stream:
